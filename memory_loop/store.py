@@ -32,6 +32,7 @@ class QueryStatus(str, Enum):
 class ActivationReason(str, Enum):
     SEARCH = "search"
     REMINDER = "reminder"
+    ASSOCIATION = "association"
 
 
 @dataclass(frozen=True)
@@ -737,17 +738,16 @@ class MemoryStore:
 
     @staticmethod
     def context_for(
-        result: QueryResult, *, reminders: tuple[ReminderNotice, ...] = (),
+        result: QueryResult | None, *, reminders: tuple[ReminderNotice, ...] = (),
+        associations: tuple[ContextFragment, ...] = (),
     ) -> tuple[ContextFragment, ...]:
-        """Merge same-turn search hits and reminders without dropping either reason."""
+        """Merge same-turn fragments without dropping any applicable reason."""
         fragments = {
             record.fragment_id: MemoryStore._context_fragment(record, ActivationReason.SEARCH)
             for record in result.matches
-        } if result.status is QueryStatus.COMPLETE_WITH_MATCHES else {}
-        for notice in reminders:
-            item = notice.context
-            if item is None:
-                continue
+        } if result is not None and result.status is QueryStatus.COMPLETE_WITH_MATCHES else {}
+        reminder_context = (notice.context for notice in reminders if notice.context is not None)
+        for item in (*reminder_context, *associations):
             previous = fragments.get(item.fragment_id)
             if previous is not None:
                 # Corrections only append, so the longer chain is the newer snapshot.

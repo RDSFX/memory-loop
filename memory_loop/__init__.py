@@ -16,11 +16,14 @@ from .store import (
     ReminderNotice,
     SourceKind,
 )
+from .turn import AssociationRule, AssociationSuggestion, SituationEvent, TurnEngine, TurnExplanation, TurnResult
 
 __all__ = [
     "ActionBlocked",
     "ActionCheck",
     "ActivationReason",
+    "AssociationRule",
+    "AssociationSuggestion",
     "Constraint",
     "ContextFragment",
     "DecisionExplanation",
@@ -32,4 +35,8 @@ __all__ = [
     "ReminderDelivery",
     "ReminderNotice",
     "SourceKind",
+    "SituationEvent",
+    "TurnEngine",
+    "TurnExplanation",
+    "TurnResult",
 ]
